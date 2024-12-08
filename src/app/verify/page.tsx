@@ -113,6 +113,7 @@ export default function VerificationPage() {
                 setVerificationStatus('Camera error: ' + errorMessage);
                 console.error('Camera error:', errorMessage);
               }}
+              enableCameraToggle={true}
             />
           </div>
         )}
