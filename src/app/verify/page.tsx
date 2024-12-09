@@ -3,6 +3,8 @@
 import { PlashoSDK, PlashoCamera } from '@plasho/sdk';
 import { PlashoForm } from '@/components/PlashoForm';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { plasho } from '@/lib/plasho';
 
 export default function VerificationPage() {
   const [showCamera, setShowCamera] = useState(false);
@@ -10,10 +12,9 @@ export default function VerificationPage() {
   const [verificationStatus, setVerificationStatus] = useState<string>('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
+  const [verificationFailed, setVerificationFailed] = useState(false);
   
-  const plasho = new PlashoSDK({
-    apiKey: process.env.NEXT_PUBLIC_PLASHO_API_KEY || 'your-api-key',
-  });
+  const router = useRouter();
 
   const handleSubmit = async (data: any) => {
     try {
@@ -49,10 +50,13 @@ export default function VerificationPage() {
       const result = await plasho.verifyId(images);
       setVerificationStatus('ID verification successful!');
       console.log('Verification result:', result);
+      setVerificationFailed(false);
+      router.push('/success');
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       setVerificationStatus(`ID verification failed: ${errorMessage}`);
       console.error('Verification error:', error);
+      setVerificationFailed(true);
     }
   };
 
@@ -108,6 +112,7 @@ export default function VerificationPage() {
           <div className="mt-6">
             <PlashoCamera
               onImagesCapture={handleImagesCapture}
+              verificationFailed={verificationFailed}
               onError={(error: unknown) => {
                 const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
                 setVerificationStatus('Camera error: ' + errorMessage);
